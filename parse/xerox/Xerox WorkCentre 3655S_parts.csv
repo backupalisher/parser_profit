@@ -1,0 +1,13 @@
+Узел автоматической подачи оригиналов;050K71060;050K71060 - Лоток подачи бумаги автоподатчика документов;['Xerox WorkCentre 3655X', 'Xerox WorkCentre 3655S', 'Xerox WorkCentre 6655/X'];
+Узел автоматической подачи оригиналов;604K85850;604K85850 - Комплект захвата/отделения бумаги в узле автоматической подачи документов, в сборе (ось с роликом подачи, роликом захвата и площадка отделения бумаги - в комплекте);['Xerox WorkCentre 3655X', 'Xerox WorkCentre 3655S', 'Xerox WorkCentre 6655/X'];
+Внутренние компоненты;930W00123;930W00123 - Датчик;['Xerox Phaser 6700N', 'Xerox WorkCentre 3615DN', 'Xerox Phaser 3010', 'Xerox Phaser 7800DN', 'Xerox WorkCentre 3655S', 'Xerox Phaser 3010 Black', 'Xerox Phaser 7800DX', 'Xerox WorkCentre 3655X', 'Xerox Phaser 3040', 'Xerox Phaser 7800DXF', 'Xerox WorkCentre 6655/X', 'Xerox Phaser 3040B', 'Xerox Phaser 7800GX', 'Xerox WorkCentre 7120', 'Xerox Phaser 3610DN', 'Xerox Phaser 7800GXF', 'Xerox WorkCentre 7125', 'Xerox Phaser 3610N', 'Xerox WorkCentre 3045', 'Xerox WorkCentre M118', 'Xerox Phaser 6700DN', 'Xerox WorkCentre 3045 Black', 'Xerox WorkCentre M118i', 'Xerox Phaser 6700DT', 'Xerox WorkCentre 3045B', 'Xerox Phaser 6700DX', 'Xerox WorkCentre 3045NI'];
+Узел переноса;059K75560;059K75560 - Вал второго переноса, в сборе;['Xerox WorkCentre 3615DN', 'Xerox WorkCentre 3655X', 'Xerox Phaser 3610N', 'Xerox WorkCentre 3655S'];E:\Projects\PycharmProjects\parser_profit\images\xerox\059K75560.jpg
+Узел термозакрепления;126K35563;126K35563 - Печь, в сборе (220В);['Xerox WorkCentre 3615DN', 'Xerox WorkCentre 3655X', 'Xerox Phaser 3610N', 'Xerox WorkCentre 3655S'];E:\Projects\PycharmProjects\parser_profit\images\xerox\126K35563.jpg
+Детали корпуса;003K89140;003K89140 - Петля модуля сканера (левая);['Xerox WorkCentre 3655X', 'Xerox WorkCentre 3655S', 'Xerox WorkCentre 6655/X'];
+Детали корпуса;003K89860;003K89860 - Петля модуля сканера (правая);['Xerox WorkCentre 3655X', 'Xerox WorkCentre 3655S', 'Xerox WorkCentre 6655/X'];
+Комплекты;115R00085;"115R00085 - Комплект из узла термозакрепления (220В) и вала переноса заряда
+---
+Состав:
+126K35562 - Печь, в сборе (1)
+059K75560 - Вал второго переноса (1)
+---";['Xerox WorkCentre 3615DN', 'Xerox WorkCentre 3655X', 'Xerox Phaser 3610N', 'Xerox WorkCentre 3655S'];E:\Projects\PycharmProjects\parser_profit\images\xerox\115R00085.jpg
