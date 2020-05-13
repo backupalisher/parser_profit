@@ -19,6 +19,7 @@ def i_request(q):
     except psycopg2.DatabaseError as err:
         if err.pgerror:
             print("Error: ", err)
+            print("Error: ", q)
     else:
         return data
     finally:
