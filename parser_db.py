@@ -56,7 +56,7 @@ def add_db():
                     spr_details_id = 0
                     detail_id = 0
 
-                    det = re.sub(r'^.*([A-Za-z0-9])\w+\s-\s', '', d[2])
+                    det = re.sub(r'^.*([A-Za-z0-9])\w+.*-\s', '', d[2])
                     det = re.sub(r'^\([^)]*\)', '', det)
                     if re.search(r'Ресурс:', det):
                         res = re.search(r'\([^)]*\)', det).group(0)
@@ -83,7 +83,7 @@ def add_db():
                         # добавить наименование детали в spr_details (name)
                         # добавить линковку в details (partcode_id, model_id, module_id, spr_detail_id)
                         module_id = db.insert_spr_modules(d[0].strip())
-                        partcode_id = db.insert_partcodes(d[1].strip())
+                        partcode_id = db.insert_partcodes(d[1])
                         spr_details_id = db.insert_detail_spr_details(det)
 
                         if partcode_id > 0 and model_id > 0 and module_id > 0 and spr_details_id > 0:
@@ -100,14 +100,15 @@ def add_db():
                         db.link_detail_options(detail_id, detail_option_id)
 
                     # ищем и добавляем совместимые детали
-                    part = re.sub(r'^.*([A-Za-z0-9])\w+\s-\s', '', d[2])
+                    part = re.sub(r'^.*([A-Za-z0-9])\w+.*-\s', '', d[2])
                     part = re.search(r'^\([^)]*\)', part)
                     if part:
                         part = re.sub('\(|\)', '', part.group(0))
                         if part:
                             s_partcode_id = db.insert_partcodes(d[1].strip())
                             if str(d[4]) != 'nan':
-                                path = re.sub(r'E:\\Projects\\PycharmProjects\\parser_profit\\images\\', '', d[4]).replace('\\', '/')
+                                path = re.sub(r'E:\\Projects\\PycharmProjects\\parser_profit\\images\\',
+                                              '', d[4]).replace('\\', '/')
                                 if partcode_id > 0 and path:
                                     db.update_partcode_image(path, s_partcode_id)
 
