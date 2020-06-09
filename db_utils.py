@@ -38,6 +38,7 @@ def insert_model(model, brand_id):
                      f'LOWER(concat(\'%\' || regexp_replace(\'{model}\',\'-\', \'\', \'g\') || \'%\'))), i as '
                      f'(INSERT INTO models (name, brand_id) SELECT \'{model}\', \'{brand_id}\' '
                      f'WHERE NOT EXISTS (SELECT 1 FROM s) RETURNING id) SELECT id FROM i UNION ALL SELECT id FROM s')
+
     if q:
         return q[0][0]
     else:
@@ -58,8 +59,8 @@ def insert_model_spr_details(model):
 
 def insert_detail_spr_details(detail):
     q = db.i_request(f'WITH s as (SELECT id FROM spr_details '
-                     f'WHERE LOWER(regexp_replace(name_ru,\'-\', \'\', \'g\')) SIMILAR TO '
-                     f'LOWER(concat(\'%\' || regexp_replace(\'{detail}\',\'-\', \'\', \'g\') || \'%\'))), i as '
+                     f'WHERE LOWER(name_ru) SIMILAR TO '
+                     f'LOWER(concat(\'%\' || {detail} || \'%\'))), i as '
                      f'(INSERT INTO spr_details (name_ru) SELECT \'{detail}\' '
                      f'WHERE NOT EXISTS (SELECT 1 FROM s) RETURNING id) SELECT id FROM i UNION ALL SELECT id FROM s')
     if q:

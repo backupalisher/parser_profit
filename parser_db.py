@@ -1,16 +1,27 @@
 import os
 import re
+from datetime import datetime
 
 import pandas
+from termcolor import colored
 
 import db_utils as db
 
 
 def add_db():
     files = load_files_list()
+    miss_files = pandas.read_csv('miss_models', sep=';', header=None).values.tolist()
 
     for file in files:
-        file_name = re.sub(r'(^.*\\)|(MFP)$|(\s{2,})|(_spec).+$|(_part).+$', '', file[1])
+        miss_file = False
+        for miss in miss_files:
+            if re.search(fr'{miss[0]}', file[1]):
+                miss_file = True
+                break
+        if miss_file:
+            continue
+
+        file_name = re.sub(r'(^.*\\)|(MFP)$|(\s{2,})|(_spec).+$|(_part).+$|\+', '', file[1])
         brand_name = re.sub(r'\s.*$', '', file_name)
         brand_id = db.get_brand_id(brand_name)
         if brand_id < 1:
@@ -20,7 +31,7 @@ def add_db():
 
         model_id = db.get_model_id(file_name)
         if model_id < 1:
-            model = re.search('^.*\d', file_name)
+            model = re.search('.*\d', file_name)
             if model:
                 model_id = db.get_model_id(model.group(0))
                 if model_id < 1:
@@ -38,7 +49,7 @@ def add_db():
             df = pandas.DataFrame([file_name])
             df.to_csv('no_model', index=False, mode='a', header=False, sep=";")
             print('', end='\n')
-            print(file_name, model_id, end='\n')
+            print(colored(file_name, 'blue'), colored(model_id, 'cyan'), end='\n')
         elif re.search(r'(_part)', file[1]):
             data = []
             try:
@@ -47,8 +58,9 @@ def add_db():
                 pass
 
             print('', end='\n')
-            print(file_name, model_id, end='\n')
+            print(colored(datetime.now().strftime("%X"), 'magenta'), colored(file_name, 'blue'), colored(model_id, 'cyan'), end='\n')
 
+            # HP Color LaserJet Enterprise Flow MFP M680dn
             if data:
                 for d in data:
                     detail_option_id = 0
@@ -59,7 +71,7 @@ def add_db():
                     det = re.sub(r'^.*([A-Za-z0-9])\w+.*-\s', '', d[2])
                     det = re.sub(r'^\([^)]*\)', '', det)
                     if re.search(r'Ресурс:', det):
-                        res = re.search(r'\([^)]*\)', det).group(0)
+                        res = re.search(r'(Ресурс:).+(стр.)', det).group(0)
                         res_id = db.get_option_id('Ресурс')
                         res_val_id = db.get_option_id(re.sub(r'[^\d]', '', res))
                         detail_option_id = db.insert_detail_options(res_id, res_val_id)
@@ -67,7 +79,7 @@ def add_db():
                         det = re.sub(r'\([^)]*\)', '', det)
                     det = det.strip()
 
-                    print(f'\r', d[0], d[1], d[2], end='')
+                    print(f'\r', colored(d[0], 'green'), colored(d[1], 'red'), colored(d[2], 'yellow'), end='')
                     partcode_id = db.get_partcode_id(d[1])
 
                     if partcode_id > 0:
@@ -117,10 +129,10 @@ def add_db():
                         d3 = re.sub(r'\[|\]|\'', '', d[3])
                         d3 = d3.split(',')
                         for i, n in enumerate(d3):
-                            a_model_id = db.get_model_id(n.strip())
+                            a_model_id = db.get_model_id(n.replace('+', '').strip())
                             if partcode_id > 0:
                                 if a_model_id < 1:
-                                    a_brand_name = re.sub(r'\s.*$', '', n.strip())
+                                    a_brand_name = re.sub(r'\s.*$', '', n.replace('+', '').strip())
                                     a_brand_id = db.get_brand_id(a_brand_name)
 
                                     a_model_id = db.insert_model(n.strip(), a_brand_id)
@@ -139,8 +151,18 @@ def add_db():
 
 def load_files_list():
     path = r'parse'
+    miss_brands = ['brother', 'canon', 'dell', 'epson', 'hp']
     d = []
+
     for root, dirs, files in os.walk(path):
         for file in files:
+
+            miss_brand = False
+            for miss in miss_brands:
+                if re.search(fr"parse\\{miss}", root):
+                    miss_brand = True
+            if miss_brand:
+                continue
+
             d.append([f'{root}\\{file}', file])
     return d

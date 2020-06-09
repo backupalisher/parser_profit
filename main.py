@@ -1,6 +1,4 @@
 import parser_db as pd
-import parser_http as ph
-import re
 
 
 def main():
