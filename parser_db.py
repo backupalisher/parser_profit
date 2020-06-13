@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from datetime import datetime
 
 import pandas
@@ -8,9 +9,63 @@ from termcolor import colored
 import db_utils as db
 
 
+def query_yes_no(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True,
+             "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while True:
+
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' "
+                             "(or 'y' or 'n').\n")
+
+
+def get_model(model_name, brand_id):
+    model_name = re.sub(r'\([^)]*\)|\+|(^.*\\)|(MFP)$|(\s{2,})', '', model_name)
+    model_id = db.get_model_id(model_name.replace('-', ''))
+    if model_id < 1:
+        model = re.search('.*\d', model_name)
+        if model:
+            model_id = db.get_model_id(model.group(0))
+            if model_id < 1:
+                print(colored(f'The {model_name} model is missing', 'magenta'))
+                df = pandas.DataFrame([model_name])
+                df.to_csv('no_model', index=False, mode='a', header=False, sep=";")
+                model_id = 0
+                # models = db.get_models(model.group(0))
+                # if models:
+                #     for v in models:
+                #         print(v)
+                # if query_yes_no(colored(f'Insert new model, {model_name}?', 'red'), 'no'):
+                #     model_id = db.insert_model(model_name, brand_id)
+                #     spr_details_id = db.insert_model_spr_details(model_name)
+                #     db.link_models_spr_details(model_id, spr_details_id)
+                # else:
+                #     model_id = 0
+    return model_id
+
+
 def add_db():
     files = load_files_list()
-    miss_files = pandas.read_csv('miss_models', sep=';', header=None).values.tolist()
+    try:
+        miss_files = pandas.read_csv('miss_models', sep=';', header=None)
+        miss_files = miss_files.values.tolist()
+    except:
+        miss_files = []
 
     for file in files:
         miss_file = False
@@ -21,7 +76,7 @@ def add_db():
         if miss_file:
             continue
 
-        file_name = re.sub(r'(^.*\\)|(MFP)$|(\s{2,})|(_spec).+$|(_part).+$|\+', '', file[1])
+        file_name = re.sub(r'(_spec).+$|(_part).+$', '', file[1])
         brand_name = re.sub(r'\s.*$', '', file_name)
         brand_id = db.get_brand_id(brand_name)
         if brand_id < 1:
@@ -29,15 +84,7 @@ def add_db():
             df = pandas.DataFrame([brand_name])
             df.to_csv('no_model', index=False, mode='a', header=False, sep=";")
 
-        model_id = db.get_model_id(file_name)
-        if model_id < 1:
-            model = re.search('.*\d', file_name)
-            if model:
-                model_id = db.get_model_id(model.group(0))
-                if model_id < 1:
-                    model_id = db.insert_model(model.group(0), brand_id)
-                    spr_details_id = db.insert_model_spr_details(model.group(0))
-                    db.link_models_spr_details(model_id, spr_details_id)
+        model_id = get_model(file_name, brand_id)
 
         if model_id > 0 and re.search('_parts', file[1]):
             path = re.sub(r'(parse\\)|(_parts)|(\.csv)', '', file[1])
@@ -58,7 +105,8 @@ def add_db():
                 pass
 
             print('', end='\n')
-            print(colored(datetime.now().strftime("%X"), 'magenta'), colored(file_name, 'blue'), colored(model_id, 'cyan'), end='\n')
+            print(colored(datetime.now().strftime("%X"), 'magenta'), colored(file_name, 'blue'),
+                  colored(model_id, 'cyan'), end='\n')
 
             # HP Color LaserJet Enterprise Flow MFP M680dn
             if data:
@@ -76,7 +124,7 @@ def add_db():
                         res_val_id = db.get_option_id(re.sub(r'[^\d]', '', res))
                         detail_option_id = db.insert_detail_options(res_id, res_val_id)
 
-                        det = re.sub(r'\([^)]*\)', '', det)
+                        det = re.sub(r'\([^)]*\)|\'|\"|\`', '', det)
                     det = det.strip()
 
                     print(f'\r', colored(d[0], 'green'), colored(d[1], 'red'), colored(d[2], 'yellow'), end='')
@@ -134,10 +182,8 @@ def add_db():
                                 if a_model_id < 1:
                                     a_brand_name = re.sub(r'\s.*$', '', n.replace('+', '').strip())
                                     a_brand_id = db.get_brand_id(a_brand_name)
-
-                                    a_model_id = db.insert_model(n.strip(), a_brand_id)
-                                    spr_details_id = db.insert_model_spr_details(n.strip())
-                                    db.link_models_spr_details(a_model_id, spr_details_id)
+                                    if a_brand_id > 0:
+                                        a_model_id = get_model(n.strip(), a_brand_id)
 
                             if a_model_id > 0 and partcode_id > 0:
                                 db.link_partcode_model_analogs(a_model_id, partcode_id)
@@ -147,17 +193,19 @@ def add_db():
                         path = re.sub(r'E:\\Projects\\PycharmProjects\\parser_profit\\images\\', '', d[4])
                         if partcode_id > 0 and path:
                             db.update_partcode_image(path, partcode_id)
+    files = load_files_list()
 
 
 def load_files_list():
     path = r'parse'
-    miss_brands = ['brother', 'canon', 'dell', 'epson', 'hp']
+    miss_brands = ['brother', 'canon', 'dell', 'epson']
     d = []
 
     for root, dirs, files in os.walk(path):
         for file in files:
 
             miss_brand = False
+
             for miss in miss_brands:
                 if re.search(fr"parse\\{miss}", root):
                     miss_brand = True
