@@ -193,7 +193,6 @@ def add_db():
                         path = re.sub(r'E:\\Projects\\PycharmProjects\\parser_profit\\images\\', '', d[4])
                         if partcode_id > 0 and path:
                             db.update_partcode_image(path, partcode_id)
-    files = load_files_list()
 
 
 def load_files_list():

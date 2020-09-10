@@ -11,8 +11,9 @@ def get_brand_id(brand):
 
 def get_model_id(model):
     # SELECT * FROM models WHERE regexp_replace(name,'-','','g') ~* 'Brother HL1030';
-    q = db.i_request(f"SELECT id FROM models WHERE LOWER(name) "
-                     f"SIMILAR TO LOWER(concat('%' || regexp_replace('{model}', '-', '', 'g') || '%'))")
+    # q = db.i_request(f"SELECT id FROM models WHERE LOWER(name) "
+    #                  f"SIMILAR TO LOWER(concat('%' || regexp_replace('{model}', '-', '', 'g') || '%'))")
+    q = db.i_request(f"SELECT id FROM models WHERE LOWER(name) = LOWER('{model}')")
     if q:
         return q[0][0]
     else:

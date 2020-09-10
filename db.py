@@ -1,11 +1,11 @@
 import psycopg2
 
 con = psycopg2.connect(
-    database="part4_spe_only",
+    database="part4_new",
     user="part4",
     password="part4_GfhjkzYtn321",
-    # host="198.245.61.187",
-    host="localhost",
+    host="116.203.219.63",
+    # host="localhost",
     port="5432"
 )
 
@@ -19,7 +19,7 @@ def i_request(q):
     except psycopg2.DatabaseError as err:
         if err.pgerror:
             print("Error: ", err)
-            print("Error: ", q)
+            print("Query: ", q)
     else:
         return data
     finally:
